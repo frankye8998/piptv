@@ -6,6 +6,22 @@ import os
 from threading import Thread
 
 
+if os.name != 'nt':
+    class colors:
+        RED = "\n\033[1;31;49m"
+        CYAN = "\033[1;36;49m"
+        WHITE = "\033[1;37;49m"
+        GREEN = "\n\033[1;32;49m"
+        YELLOW = "\n\033[1;33;49m"
+else:
+    class colors:
+        RED = ""
+        CYAN = ""
+        WHITE = ""
+        GREEN = ""
+        YELLOW = ""
+
+
 class CableBox(Thread):
     def __init__(self):
         super().__init__()
@@ -102,7 +118,7 @@ class CableBox(Thread):
             bsoup = Soup(requests.get(self.channel_dict[channel.lower()]).text, 'html.parser')
             return bsoup.findAll("script")[15].next_element.split(" file: ")[1].split(',')[0].strip("\'")
         except KeyError:
-            print("\n\033[1;31;49mInvalid channel name!\n")
+            print(f"\n{colors.RED}Invalid channel name!\n")
             return 1
 
     def tune_to_channel(self, channel):
@@ -119,7 +135,7 @@ class CableBox(Thread):
                 time.sleep(0.1)
                 os.system('cls' if os.name == 'nt' else 'clear')
             except KeyboardInterrupt:
-                print("\n\033[1;31;49mStopping..\n")
+                print(f"\n{colors.RED}Stopping..\n")
                 self.player.stop()
                 break
 
@@ -127,24 +143,24 @@ class CableBox(Thread):
 def main():
     while True:
         stb = CableBox()
-        print("\n\033[1;36;49mTo list channels, type list.\n"
+        print(f"\n{colors.CYAN}To list channels, type list.\n"
               "To tune to a channel, type its name.\n"
               "To stop playback, hit CTRL+C.\n"
               "To quit, type quit.\n\n")
-        command = input("\033[1;37;49m>> ")
+        command = input(f"{colors.WHITE}>> ")
         if command == "stop":
             stb.player.stop()
         elif command == "list":
-            print("\n\033[1;32;49mCHANNELS:\n")
+            print(f"{colors.GREEN}CHANNELS:\n")
             for key in stb.channel_dict.keys():
-                print("\033[1;32;49m" + key)
+                print(colors.GREEN + key)
         elif command == "quit":
             return
         elif command == "set hotlink":
             stb.player.set_mrl(input("\nhotlink: "))
             stb.run()
         else:
-            print("\n\033[1;33;49mTrying to tune to {}...\n".format(command))
+            print(f"{colors.YELLOW}Trying to tune to {command}...\n")
             stb.tune_to_channel(command)
 
 
